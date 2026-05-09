@@ -1,17 +1,16 @@
-const mongoose = require('mongoose');
+﻿import mongoose from 'mongoose';
 
-const connectDB = async () => {
+const conectarMongoDB = async () => {
   try {
-    if (!process.env.MONGO_URI) {
-      throw new Error('Falta la variable MONGO_URI en el archivo .env');
-    }
+    const mongoUri = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/SpotifyBackend';
 
-    await mongoose.connect(process.env.MONGO_URI);
-    console.log('MongoDB conectado correctamente');
+    await mongoose.connect(mongoUri);
+
+    console.log('Conexion a MongoDB exitosa');
   } catch (error) {
-    console.error('Error al conectar MongoDB:', error.message);
+    console.error('Error al conectar con MongoDB:', error.message);
     process.exit(1);
   }
 };
 
-module.exports = connectDB;
+export { conectarMongoDB };

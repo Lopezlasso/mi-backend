@@ -1,15 +1,18 @@
-const { Router } = require('express');
-const githubRoutes = require('./github.routes');
+﻿import { Router } from 'express';
+import spotifyRoutes from './spotify.routes.js';
 
-const router = Router();
+const indexRoutes = Router();
 
-router.get('/', (req, res) => {
+indexRoutes.get('/', (req, res) => {
   res.status(200).json({
     success: true,
-    message: 'GitHub API backend funcionando'
+    message: 'API Spotify Backend funcionando correctamente',
+    endpoints: {
+      spotify: '/api/spotify'
+    }
   });
 });
 
-router.use('/api/github', githubRoutes);
+indexRoutes.use('/spotify', spotifyRoutes);
 
-module.exports = router;
+export default indexRoutes;

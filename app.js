@@ -1,19 +1,28 @@
-const express = require('express');
-const cors = require('cors');
-const indexRoutes = require('./routes/index.routes');
+﻿import express from 'express';
+import cors from 'cors';
+import indexRoutes from './routes/index.routes.js';
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-app.use('/', indexRoutes);
-
-app.get('/api/health', (req, res) => {
+app.get('/', (req, res) => {
   res.status(200).json({
     success: true,
-    message: 'GitHub API backend funcionando'
+    message: 'Servidor Spotify Backend activo',
+    api: '/api'
   });
 });
 
-module.exports = app;
+app.use('/api', indexRoutes);
+
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: 'Ruta no encontrada'
+  });
+});
+
+export default app;
