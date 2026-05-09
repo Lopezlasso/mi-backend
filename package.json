@@ -1,21 +1,23 @@
 {
   "name": "mi-backend",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Backend CRUD con GitHub API y MongoDB",
+  "main": "app.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "node index.js"
+    "start": "node server/server.js",
+    "dev": "nodemon server/server.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "module",
   "dependencies": {
     "colors": "^1.4.0",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "mongoose": "^9.6.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
   }
 }

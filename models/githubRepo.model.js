@@ -1,8 +1,8 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 
 const githubRepoSchema = new mongoose.Schema(
   {
-    github_id: {
+    githubId: {
       type: Number,
       required: true,
       unique: true
@@ -12,12 +12,7 @@ const githubRepoSchema = new mongoose.Schema(
       required: true,
       trim: true
     },
-    full_name: {
-      type: String,
-      required: true,
-      trim: true
-    },
-    html_url: {
+    fullName: {
       type: String,
       required: true,
       trim: true
@@ -25,6 +20,11 @@ const githubRepoSchema = new mongoose.Schema(
     description: {
       type: String,
       default: ''
+    },
+    url: {
+      type: String,
+      required: true,
+      trim: true
     },
     language: {
       type: String,
@@ -38,7 +38,7 @@ const githubRepoSchema = new mongoose.Schema(
       type: Number,
       default: 0
     },
-    open_issues: {
+    openIssues: {
       type: Number,
       default: 0
     },
@@ -47,11 +47,11 @@ const githubRepoSchema = new mongoose.Schema(
         type: String,
         default: ''
       },
-      avatar_url: {
+      avatarUrl: {
         type: String,
         default: ''
       },
-      html_url: {
+      url: {
         type: String,
         default: ''
       }
@@ -62,6 +62,4 @@ const githubRepoSchema = new mongoose.Schema(
   }
 );
 
-const GithubRepo = mongoose.model('GithubRepo', githubRepoSchema);
-
-export default GithubRepo;
+module.exports = mongoose.model('GithubRepo', githubRepoSchema);

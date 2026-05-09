@@ -1,18 +1,15 @@
-import { Router } from 'express';
-import githubRoutes from './github.routes.js';
+const { Router } = require('express');
+const githubRoutes = require('./github.routes');
 
 const router = Router();
 
 router.get('/', (req, res) => {
-  res.json({
-    message: 'API principal funcionando correctamente',
-    endpoints: {
-      githubSearch: '/api/github/search?q=node',
-      githubSaved: '/api/github/saved'
-    }
+  res.status(200).json({
+    success: true,
+    message: 'GitHub API backend funcionando'
   });
 });
 
-router.use('/github', githubRoutes);
+router.use('/api/github', githubRoutes);
 
-export default router;
+module.exports = router;

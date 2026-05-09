@@ -1,1 +1,7 @@
- 
+node_modules/
+.env
+*.log
+tmp_server*.log
+crud_server*.log
+.crud_test_id
+test_results*.json

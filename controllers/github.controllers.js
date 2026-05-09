@@ -1,5 +1,5 @@
-import mongoose from 'mongoose';
-import GithubRepo from '../models/githubRepo.model.js';
+const mongoose = require('mongoose');
+const GithubRepo = require('../models/githubRepo.model');
 
 const buildGitHubHeaders = () => {
   const headers = {
@@ -14,20 +14,20 @@ const buildGitHubHeaders = () => {
   return headers;
 };
 
-const mapGithubRepo = (repo) => ({
-  github_id: repo.id,
+const mapGitHubRepo = (repo) => ({
+  githubId: repo.id,
   name: repo.name || '',
-  full_name: repo.full_name || '',
-  html_url: repo.html_url || '',
+  fullName: repo.full_name || '',
   description: repo.description || '',
+  url: repo.html_url || '',
   language: repo.language || '',
   stars: repo.stargazers_count || 0,
   forks: repo.forks_count || 0,
-  open_issues: repo.open_issues_count || 0,
+  openIssues: repo.open_issues_count || 0,
   owner: {
     login: repo.owner?.login || '',
-    avatar_url: repo.owner?.avatar_url || '',
-    html_url: repo.owner?.html_url || ''
+    avatarUrl: repo.owner?.avatar_url || '',
+    url: repo.owner?.html_url || ''
   }
 });
 
@@ -38,7 +38,47 @@ const handleServerError = (res, error) =>
     details: error.message
   });
 
-export const searchGithubRepos = async (req, res) => {
+const normalizeSavedRepoPayload = (payload = {}) => ({
+  githubId: payload.githubId ?? payload.github_id,
+  name: payload.name,
+  fullName: payload.fullName ?? payload.full_name,
+  description: payload.description,
+  url: payload.url ?? payload.html_url,
+  language: payload.language,
+  stars: payload.stars,
+  forks: payload.forks,
+  openIssues: payload.openIssues ?? payload.open_issues,
+  owner: payload.owner
+    ? {
+        login: payload.owner.login,
+        avatarUrl: payload.owner.avatarUrl ?? payload.owner.avatar_url,
+        url: payload.owner.url ?? payload.owner.html_url
+      }
+    : undefined
+});
+
+const cleanUndefined = (obj) => {
+  if (!obj || typeof obj !== 'object') {
+    return obj;
+  }
+
+  const entries = Object.entries(obj).filter(([, value]) => value !== undefined);
+  return Object.fromEntries(entries);
+};
+
+const validateMongoId = (res, id) => {
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    res.status(400).json({
+      success: false,
+      message: 'ID invalido'
+    });
+    return false;
+  }
+
+  return true;
+};
+
+const searchGitHubRepos = async (req, res) => {
   try {
     const query = (req.query.q || '').trim();
 
@@ -49,9 +89,15 @@ export const searchGithubRepos = async (req, res) => {
       });
     }
 
-    const baseUrl = process.env.GITHUB_API_BASE_URL || 'https://api.github.com';
+    if (!process.env.GITHUB_API_BASE_URL) {
+      return res.status(500).json({
+        success: false,
+        message: 'Falta GITHUB_API_BASE_URL en .env'
+      });
+    }
+
     const perPage = Number(process.env.GITHUB_PER_PAGE) || 10;
-    const url = new URL('/search/repositories', baseUrl);
+    const url = new URL('/search/repositories', process.env.GITHUB_API_BASE_URL);
 
     url.searchParams.set('q', query);
     url.searchParams.set('sort', 'stars');
@@ -61,6 +107,7 @@ export const searchGithubRepos = async (req, res) => {
     const response = await fetch(url, {
       headers: buildGitHubHeaders()
     });
+
     const payload = await response.json().catch(() => ({}));
 
     if (!response.ok) {
@@ -71,7 +118,7 @@ export const searchGithubRepos = async (req, res) => {
       });
     }
 
-    const repos = Array.isArray(payload.items) ? payload.items.map(mapGithubRepo) : [];
+    const repos = Array.isArray(payload.items) ? payload.items.map(mapGitHubRepo) : [];
 
     return res.status(200).json({
       success: true,
@@ -82,7 +129,7 @@ export const searchGithubRepos = async (req, res) => {
   }
 };
 
-export const getSavedRepos = async (req, res) => {
+const getSavedRepos = async (req, res) => {
   try {
     const repos = await GithubRepo.find().sort({ createdAt: -1 });
 
@@ -95,15 +142,12 @@ export const getSavedRepos = async (req, res) => {
   }
 };
 
-export const getSavedRepoById = async (req, res) => {
+const getSavedRepoById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({
-        success: false,
-        message: 'ID invalido'
-      });
+    if (!validateMongoId(res, id)) {
+      return;
     }
 
     const repo = await GithubRepo.findById(id);
@@ -124,9 +168,10 @@ export const getSavedRepoById = async (req, res) => {
   }
 };
 
-export const saveRepo = async (req, res) => {
+const saveRepo = async (req, res) => {
   try {
-    const savedRepo = await GithubRepo.create(req.body);
+    const payload = cleanUndefined(normalizeSavedRepoPayload(req.body));
+    const savedRepo = await GithubRepo.create(payload);
 
     return res.status(201).json({
       success: true,
@@ -153,19 +198,17 @@ export const saveRepo = async (req, res) => {
   }
 };
 
-export const updateSavedRepo = async (req, res) => {
+const updateSavedRepo = async (req, res) => {
   try {
     const { id } = req.params;
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({
-        success: false,
-        message: 'ID invalido'
-      });
+    if (!validateMongoId(res, id)) {
+      return;
     }
 
-    const updatedRepo = await GithubRepo.findByIdAndUpdate(id, req.body, {
-      new: true,
+    const payload = cleanUndefined(normalizeSavedRepoPayload(req.body));
+    const updatedRepo = await GithubRepo.findByIdAndUpdate(id, payload, {
+      returnDocument: 'after',
       runValidators: true
     });
 
@@ -193,15 +236,12 @@ export const updateSavedRepo = async (req, res) => {
   }
 };
 
-export const deleteSavedRepo = async (req, res) => {
+const deleteSavedRepo = async (req, res) => {
   try {
     const { id } = req.params;
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({
-        success: false,
-        message: 'ID invalido'
-      });
+    if (!validateMongoId(res, id)) {
+      return;
     }
 
     const deletedRepo = await GithubRepo.findByIdAndDelete(id);
@@ -221,4 +261,13 @@ export const deleteSavedRepo = async (req, res) => {
   } catch (error) {
     return handleServerError(res, error);
   }
+};
+
+module.exports = {
+  searchGitHubRepos,
+  getSavedRepos,
+  getSavedRepoById,
+  saveRepo,
+  updateSavedRepo,
+  deleteSavedRepo
 };
