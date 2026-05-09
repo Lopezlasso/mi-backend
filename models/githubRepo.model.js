@@ -1,8 +1,8 @@
-﻿import mongoose from 'mongoose';
+import mongoose from 'mongoose';
 
 const githubRepoSchema = new mongoose.Schema(
   {
-    githubId: {
+    github_id: {
       type: Number,
       required: true,
       unique: true
@@ -12,7 +12,12 @@ const githubRepoSchema = new mongoose.Schema(
       required: true,
       trim: true
     },
-    fullName: {
+    full_name: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    html_url: {
       type: String,
       required: true,
       trim: true
@@ -21,25 +26,9 @@ const githubRepoSchema = new mongoose.Schema(
       type: String,
       default: ''
     },
-    htmlUrl: {
-      type: String,
-      required: true
-    },
-    cloneUrl: {
-      type: String,
-      default: ''
-    },
-    ownerLogin: {
-      type: String,
-      required: true
-    },
-    ownerAvatarUrl: {
-      type: String,
-      default: ''
-    },
     language: {
       type: String,
-      default: 'No especificado'
+      default: ''
     },
     stars: {
       type: Number,
@@ -49,27 +38,23 @@ const githubRepoSchema = new mongoose.Schema(
       type: Number,
       default: 0
     },
-    openIssues: {
+    open_issues: {
       type: Number,
       default: 0
     },
-    defaultBranch: {
-      type: String,
-      default: ''
-    },
-    createdAtGithub: {
-      type: Date
-    },
-    updatedAtGithub: {
-      type: Date
-    },
-    lastFetchedAt: {
-      type: Date,
-      default: Date.now
-    },
-    searchTerm: {
-      type: String,
-      default: ''
+    owner: {
+      login: {
+        type: String,
+        default: ''
+      },
+      avatar_url: {
+        type: String,
+        default: ''
+      },
+      html_url: {
+        type: String,
+        default: ''
+      }
     }
   },
   {
@@ -77,6 +62,6 @@ const githubRepoSchema = new mongoose.Schema(
   }
 );
 
-const GitHubRepo = mongoose.model('GitHubRepo', githubRepoSchema);
+const GithubRepo = mongoose.model('GithubRepo', githubRepoSchema);
 
-export default GitHubRepo;
+export default GithubRepo;

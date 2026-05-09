@@ -10,7 +10,11 @@ export const conectarMongoDB = async () => {
   }
 
   try {
-    const mongoUri = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/mi_backend_github';
+    const mongoUri = process.env.MONGO_URI;
+
+    if (!mongoUri) {
+      throw new Error('MONGO_URI no esta definido en el entorno');
+    }
 
     await mongoose.connect(mongoUri);
 
