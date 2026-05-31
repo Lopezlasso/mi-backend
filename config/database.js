@@ -2,7 +2,11 @@
 
 const conectarMongoDB = async () => {
   try {
-    const mongoUri = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/SpotifyBackend';
+    const mongoUri = process.env.MONGO_URI;
+
+    if (!mongoUri) {
+      throw new Error('MONGO_URI no esta definida en el archivo .env');
+    }
 
     await mongoose.connect(mongoUri);
 

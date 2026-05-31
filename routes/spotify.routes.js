@@ -1,20 +1,18 @@
-﻿import { Router } from 'express';
+import { Router } from 'express';
 import {
-  getAllSpotifyCompanies,
-  getSpotifyCompanyById,
-  postSpotifyCompany,
-  putSpotifyCompany,
-  deleteSpotifyCompany,
-  getSpotifyCompaniesByCountry
+  crearSpotify,
+  obtenerSpotify,
+  obtenerSpotifyPorId,
+  actualizarSpotify,
+  eliminarSpotify
 } from '../controllers/spotify.controllers.js';
 
 const router = Router();
 
-router.get('/', getAllSpotifyCompanies);
-router.post('/', postSpotifyCompany);
-router.get('/pais/:pais', getSpotifyCompaniesByCountry);
-router.get('/:id', getSpotifyCompanyById);
-router.put('/:id', putSpotifyCompany);
-router.delete('/:id', deleteSpotifyCompany);
+router.post('/', crearSpotify);
+router.get('/', obtenerSpotify);
+router.get('/:id', obtenerSpotifyPorId);
+router.put('/:id', actualizarSpotify);
+router.delete('/:id', eliminarSpotify);
 
 export default router;

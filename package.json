@@ -1,7 +1,7 @@
 {
   "name": "spotify-backend",
   "version": "1.0.0",
-  "description": "Backend REST API para manejar registros de la empresa Spotify con Node.js, Express y MongoDB.",
+  "description": "Backend REST API para manejar playlists oficiales de Spotify con Node.js, Express y MongoDB.",
   "main": "server.js",
   "type": "module",
   "scripts": {
